@@ -69,12 +69,12 @@ Personal-Schedule-Assistant-NLP/
 └── test_cases_final.csv # File dữ liệu kiểm thử (30 câu lệnh)
 
 ```
-
-```bash
 📖 Hướng dẫn Sử dụng (Chi tiết)
+
 Sau khi khởi chạy ứng dụng thành công, người dùng có thể tương tác qua 4 tab chức năng chính:
 
 1. Thêm Sự kiện Thông minh (Tab "Thêm Sự Kiện (AI)")
+```bash
 Đây là chức năng cốt lõi sử dụng Module NLP để tạo lịch trình nhanh nhất.
 
 Nhập lệnh: Gõ câu lệnh tiếng Việt tự nhiên vào ô nhập liệu. Ví dụ: "Khám răng lúc 8h sáng mai tại bệnh viện Hoàn Mỹ, nhắc trước 30 phút".
@@ -82,8 +82,10 @@ Nhập lệnh: Gõ câu lệnh tiếng Việt tự nhiên vào ô nhập liệu.
 Phân tích: Nhấn nút "🚀 Phân Tích". Ứng dụng sẽ trích xuất và hiển thị các trường thông tin (Sự kiện, Thời gian, Địa điểm) vào các thẻ (Card).
 
 Lưu trữ: Kiểm tra kết quả phân tích. Nếu chính xác, nhấn "💾 LƯU VÀO LỊCH" để ghi sự kiện vào Database. Nếu lỗi, nhập lại câu lệnh.
+```
 
 2. Tương tác với Lịch trình (Tab "Xem Lịch Trình")
+```bash
 Tab này cung cấp giao diện trực quan dưới dạng lịch (Calendar View).
 
 Mở xem Ngày: Để xem toàn bộ sự kiện chi tiết của một ngày, bạn hãy click đúp vào ngày đó trên lịch tháng. Giao diện sẽ chuyển sang dạng ngày (timeGridDay) và liệt kê chi tiết các sự kiện theo giờ.
@@ -91,8 +93,10 @@ Mở xem Ngày: Để xem toàn bộ sự kiện chi tiết của một ngày, b
 Xem chi tiết Sự kiện: Nhấp vào tiêu đề một sự kiện trên lịch để xem card chi tiết có chứa Địa điểm và Câu lệnh gốc.
 
 Quay lại: Nhấn nút "⬅️ Về Xem Tháng" ở góc trên bên trái để trở về chế độ xem tổng quan.
+```
 
 3. Quản lý (Sửa, Xóa, Tìm kiếm) (Tab "Danh Sách")
+```bash
 Phần này dùng để quản trị dữ liệu, đảm bảo tính năng Sửa/Xóa (CRUD) hoạt động ổn định.
 
 Tìm kiếm: Nhập từ khóa (tên sự kiện hoặc địa điểm) vào ô "🔍 Tìm nhanh". Bảng hiển thị bên trái sẽ được lọc theo thời gian thực.
@@ -106,8 +110,10 @@ Nếu đã tìm kiếm: Selectbox chỉ hiển thị các ID đang hiển thị 
 Chỉnh sửa: Sau khi chọn ID, chuyển sang tab con "✏️ SỬA ĐỔI". Cập nhật các trường thông tin (tên, ngày, giờ) và nhấn "💾 LƯU THAY ĐỔI".
 
 Xóa bỏ: Chuyển sang tab con "🗑 XÓA BỎ" và nhấn nút xác nhận để xóa sự kiện vĩnh viễn.
+```
 
 4. Hệ thống Nhắc nhở & Kiểm thử
+```bash
 Báo thức: Hệ thống hoạt động ngầm. Khi đến giờ hẹn (trừ đi thời gian nhắc nhở), ứng dụng sẽ tự động phát âm thanh và hiện thông báo Popup. Nhấn "🔕 TẮT NGAY" để dừng báo thức.
 
 Kiểm thử Batch: Tab "Kiểm Thử & Import" cho phép tải lên file CSV (có cột input) và chạy phân tích hàng loạt trên Module NLP để kiểm tra độ chính xác.
