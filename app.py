@@ -66,7 +66,7 @@ def load_nlp():
 with st.spinner("Đang khởi động AI Engine..."):
     nlp = load_nlp()
 
-# Thread nhắc nhở (vẫn giữ để đảm bảo logic nền)
+# Thread nhắc nhở 
 @st.cache_resource
 def start_reminder_thread():
     def check_reminders():
@@ -430,100 +430,124 @@ elif selected == "Xem Lịch Trình":
                 </div>""", unsafe_allow_html=True)
         else: st.info("Trống lịch! 🎉")
 
-# === TAB 3: DANH SÁCH & QUẢN LÝ ===
+# === TAB 3: DANH SÁCH & QUẢN LÝ (ĐÃ FIX TOÀN BỘ LOGIC VÀ LỖI PANDAS) ===
 elif selected == "Danh Sách":
     st.markdown("## 📋 Quản Lý Danh Sách Sự Kiện")
     
-    # Cập nhật lại dữ liệu mới nhất
+    # 1. Cập nhật dữ liệu từ DB (Toàn bộ)
     events_db = get_all_events()
-    df = pd.DataFrame(events_db, columns=["ID", "Sự kiện", "Bắt đầu", "Kết thúc", "Địa điểm", "Nhắc trước", "Câu lệnh gốc"])
+    df_full = pd.DataFrame(events_db, columns=["ID", "Sự kiện", "Bắt đầu", "Kết thúc", "Địa điểm", "Nhắc trước", "Câu lệnh gốc"])
     
-    if not df.empty:
-        # --- GIAO DIỆN CHÍNH ---
-        col_table, col_action = st.columns([2, 1])
+    if df_full.empty:
+        st.info("Chưa có dữ kiện nào. Hãy sang tab 'Thêm Sự Kiện' để bắt đầu.")
+        st.stop() # Thoát nếu DB rỗng
+
+    # --- 2. Lọc dữ liệu theo Search Term ---
+    # Bắt đầu với DataFrame đã lọc (cho bảng hiển thị)
+    df_filtered = df_full.copy()
+    
+    col_search, col_space = st.columns([2, 1])
+    with col_search:
+        search_term = st.text_input("🔍 Tìm nhanh:", placeholder="Nhập tên sự kiện hoặc địa điểm...")
+    
+    if search_term:
+        # Áp dụng bộ lọc cho DataFrame hiển thị
+        df_filtered = df_filtered[df_filtered['Sự kiện'].str.contains(search_term, case=False) | df_filtered['Địa điểm'].str.contains(search_term, case=False)]
+    
+    
+    # --- 3. GIAO DIỆN CHÍNH (Hiển thị Bảng) ---
+    col_table, col_action = st.columns([2, 1])
+    
+    with col_table:
+        st.markdown("### 🗃️ Dữ liệu hiện tại")
+        st.dataframe(
+            df_filtered.drop(columns=["Câu lệnh gốc"]), 
+            use_container_width=True, 
+            hide_index=True,
+            height=400
+        )
+
+    # --- 4. Lấy ID và Xử lý Form ---
+    with col_action:
+        st.markdown("### 🛠️ Thao tác")
         
-        with col_table:
-            st.markdown("### 🗃️ Dữ liệu hiện tại")
-            # Tìm kiếm
-            search_term = st.text_input("🔍 Tìm nhanh:", placeholder="Nhập tên sự kiện hoặc địa điểm...")
-            if search_term:
-                df = df[df['Sự kiện'].str.contains(search_term, case=False) | df['Địa điểm'].str.contains(search_term, case=False)]
+        # Nếu bảng hiển thị rỗng sau khi lọc
+        if df_filtered.empty:
+            st.info("Không tìm thấy sự kiện nào khớp với tìm kiếm.")
+            st.stop() # Thoát khỏi phần hiển thị form
             
-            # Hiển thị bảng (ẩn cột Câu lệnh gốc cho gọn)
-            st.dataframe(
-                df.drop(columns=["Câu lệnh gốc"]), 
-                use_container_width=True, 
-                hide_index=True,
-                height=400
-            )
+        list_ids = df_filtered['ID'].tolist()
+        
+        # Selectbox chọn ID (sử dụng Key để Streamlit theo dõi giá trị)
+        # Sử dụng df_filtered để populate list_ids
+        selected_id = st.selectbox("Chọn Sự Kiện (ID):", 
+                                   list_ids, 
+                                   format_func=lambda x: f"ID {x}", 
+                                   key="select_id_detail"
+                                   )
+        
+        # --- BẮT ĐẦU FIX INDEX ERROR VÀ LỖI STATE ---
+        # Lấy thông tin chi tiết từ DataFrame GỐC (df_full)
+        event_row = df_full[df_full['ID'] == selected_id]
+        
+        # FIX: Kiểm tra nếu ID được chọn không còn tồn tại
+        if event_row.empty:
+            st.error(f"⚠️ Lỗi: Sự kiện ID {selected_id} không tìm thấy.")
+            st.stop()
 
-        with col_action:
-            st.markdown("### 🛠️ Thao tác")
-            st.info("Chọn ID sự kiện từ danh sách bên trái để Sửa hoặc Xóa.")
-            
-            # Selectbox chọn ID
-            list_ids = df['ID'].tolist()
-            selected_id = st.selectbox("Chọn Sự Kiện (ID):", list_ids, format_func=lambda x: f"ID {x}")
-            
-            # Lấy thông tin hiện tại của ID đã chọn
-            current_event = df[df['ID'] == selected_id].iloc[0]
-            
-            tab_edit, tab_delete = st.tabs(["✏️ SỬA ĐỔI", "🗑 XÓA BỎ"])
-            
-            # --- TAB CON: SỬA ---
-            with tab_edit:
-                with st.form(key="edit_form"):
-                    st.caption(f"Đang sửa: **{current_event['Sự kiện']}**")
-                    
-                    # 1. Tên sự kiện
-                    new_name = st.text_input("Tên sự kiện:", value=current_event['Sự kiện'])
-                    
-                    # 2. Địa điểm
-                    new_loc = st.text_input("Địa điểm:", value=current_event['Địa điểm'] if current_event['Địa điểm'] else "")
-                    
-                    # 3. Xử lý thời gian (Tách ngày/giờ để hiển thị lên widget)
-                    try:
-                        dt_start = datetime.strptime(current_event['Bắt đầu'], "%Y-%m-%dT%H:%M:%S")
-                    except:
-                        dt_start = datetime.now() # Fallback nếu lỗi
-                        
-                    c_date, c_time = st.columns(2)
-                    d_input = c_date.date_input("Ngày:", value=dt_start.date())
-                    t_input = c_time.time_input("Giờ:", value=dt_start.time())
-                    
-                    # 4. Nhắc nhở
-                    new_remind = st.number_input("Nhắc trước (phút):", min_value=0, value=int(current_event['Nhắc trước']))
-                    
-                    # Submit button
-                    if st.form_submit_button("💾 LƯU THAY ĐỔI", type="primary"):
-                        # Gộp ngày + giờ thành chuỗi ISO
-                        new_start_dt = datetime.combine(d_input, t_input)
-                        new_start_str = new_start_dt.strftime("%Y-%m-%dT%H:%M:%S")
-                        
-                        # Giả lập end_time (nếu muốn chỉnh end_time kỹ hơn thì thêm widget tương tự start_time)
-                        # Ở đây tạm thời giữ nguyên khoảng cách thời gian cũ hoặc mặc định +1h
-                        new_end_str = (new_start_dt + timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%S")
+        current_event = event_row.iloc[0] # Truy cập an toàn
+        # --- KẾT THÚC FIX LOGIC ---
 
-                        # Gọi hàm Update DB
-                        from database import update_event # Import hàm mới
-                        update_event(selected_id, new_name, new_start_str, new_end_str, new_loc, new_remind)
-                        
-                        st.toast("Cập nhật thành công!", icon="✅")
-                        time.sleep(1)
-                        st.rerun()
 
-            # --- TAB CON: XÓA ---
-            with tab_delete:
-                st.warning("Hành động này không thể hoàn tác.")
-                st.write(f"Bạn chắc chắn muốn xóa: **{current_event['Sự kiện']}**?")
-                if st.button("Xác nhận Xóa", type="primary"):
-                    delete_event(selected_id)
-                    st.toast("Đã xóa sự kiện!", icon="🗑")
+        tab_edit, tab_delete = st.tabs(["✏️ SỬA ĐỔI", "🗑 XÓA BỎ"])
+        
+        # --- TAB CON: SỬA ---
+        with tab_edit:
+            with st.form(key="edit_form"):
+                # Dữ liệu form lấy từ current_event đã được xác thực
+                st.caption(f"Đang sửa: **{current_event['Sự kiện']}** (ID: {current_event['ID']})")
+                
+                # 1. Tên sự kiện
+                new_name = st.text_input("Tên sự kiện:", value=current_event['Sự kiện'])
+                
+                # 2. Địa điểm
+                new_loc = st.text_input("Địa điểm:", value=current_event['Địa điểm'] if current_event['Địa điểm'] else "")
+                
+                # 3. Xử lý thời gian (Tách ngày/giờ để hiển thị lên widget)
+                try:
+                    dt_start = datetime.strptime(current_event['Bắt đầu'], "%Y-%m-%dT%H:%M:%S")
+                except:
+                    dt_start = datetime.now() 
+                    
+                c_date, c_time = st.columns(2)
+                d_input = c_date.date_input("Ngày:", value=dt_start.date())
+                t_input = c_time.time_input("Giờ:", value=dt_start.time())
+                
+                # 4. Nhắc nhở
+                new_remind = st.number_input("Nhắc trước (phút):", min_value=0, value=int(current_event['Nhắc trước']))
+                
+                # Submit button
+                if st.form_submit_button("💾 LƯU THAY ĐỔI", type="primary"):
+                    new_start_dt = datetime.combine(d_input, t_input)
+                    new_start_str = new_start_dt.strftime("%Y-%m-%dT%H:%M:%S")
+                    new_end_str = (new_start_dt + timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%S")
+
+                    # Gọi hàm Update DB
+                    update_event(current_event['ID'], new_name, new_start_str, new_end_str, new_loc, new_remind)
+                    
+                    st.toast("Cập nhật thành công!", icon="✅")
                     time.sleep(1)
                     st.rerun()
 
-    else:
-        st.info("Chưa có dữ liệu nào. Hãy sang tab 'Thêm Sự Kiện' để bắt đầu.")
+        # --- TAB CON: XÓA ---
+        with tab_delete:
+            st.warning("Hành động này không thể hoàn tác.")
+            st.write(f"Bạn chắc chắn muốn xóa: **{current_event['Sự kiện']}** (ID: {current_event['ID']})?")
+            if st.button("Xác nhận Xóa", type="primary"):
+                delete_event(current_event['ID'])
+                st.toast("Đã xóa sự kiện!", icon="🗑")
+                time.sleep(1)
+                st.rerun()
 
 # === TAB 4: TEST & IMPORT ===
 elif selected == "Kiểm Thử & Import":
