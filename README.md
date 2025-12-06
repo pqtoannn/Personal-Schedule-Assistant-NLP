@@ -68,7 +68,9 @@ Personal-Schedule-Assistant-NLP/
 ├── scheduler.db         # [IGNORE] File Database SQLite cục bộ
 └── test_cases_final.csv # File dữ liệu kiểm thử (30 câu lệnh)
 
-```text
+```
+
+```bash
 📖 Hướng dẫn Sử dụng (Chi tiết)
 Sau khi khởi chạy ứng dụng thành công, người dùng có thể tương tác qua 4 tab chức năng chính:
 
@@ -109,4 +111,6 @@ Xóa bỏ: Chuyển sang tab con "🗑 XÓA BỎ" và nhấn nút xác nhận đ
 Báo thức: Hệ thống hoạt động ngầm. Khi đến giờ hẹn (trừ đi thời gian nhắc nhở), ứng dụng sẽ tự động phát âm thanh và hiện thông báo Popup. Nhấn "🔕 TẮT NGAY" để dừng báo thức.
 
 Kiểm thử Batch: Tab "Kiểm Thử & Import" cho phép tải lên file CSV (có cột input) và chạy phân tích hàng loạt trên Module NLP để kiểm tra độ chính xác.
+
+```
 
