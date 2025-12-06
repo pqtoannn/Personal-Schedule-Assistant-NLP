@@ -1,0 +1,8 @@
+streamlit>=1.30.0
+underthesea>=6.0.0
+dateparser>=1.2.0
+pandas>=2.0.0
+streamlit-calendar
+streamlit-option-menu
+streamlit-autorefresh
+openpyxl
