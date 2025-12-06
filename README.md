@@ -45,15 +45,25 @@ streamlit run app.py
 Tải xuống (Dành cho Người dùng cuối)
 Nếu bạn chỉ muốn tải ứng dụng về dùng ngay (không cần cài Python), vui lòng truy cập mục Releases để tải file .exe đã đóng gói.
 
-📂 Cấu trúc dự án
+## 📂 Cấu trúc dự án
+
+Dự án được tổ chức theo cấu trúc phân lớp (Layered Architecture) rõ ràng:
+
+```text
 Personal-Schedule-Assistant-NLP/
 ├── assets/              # Tài nguyên (Âm thanh, icon)
-├── nlp_core/            # Các module xử lý ngôn ngữ
-│   ├── extractors.py    # Trích xuất thực thể
-│   ├── text_utils.py    # Tiền xử lý
-│   └── time_processor.py# Logic xử lý thời gian
-├── app.py               # Giao diện chính (Streamlit)
-├── database.py          # Xử lý SQLite
-├── nlp_engine.py        # Bộ điều phối trung tâm
-├── constants.py         # Định nghĩa Regex & Hằng số
-└── requirements.txt     # Danh sách thư viện
+├── nlp_core/            # Module Xử lý Ngôn ngữ Lõi
+│   ├── extractors.py    # Logic trích xuất thực thể
+│   ├── text_utils.py    # Tiền xử lý văn bản
+│   └── time_processor.py# Logic phân tích thời gian
+├── .gitignore           # Luật bỏ qua file (venv, dist, build)
+├── README.md            # Mô tả dự án này
+├── app.py               # Giao diện chính và Logic điều khiển Streamlit
+├── build_exe.py         # Script đóng gói ứng dụng (.exe)
+├── constants.py         # Định nghĩa các Regex và Hằng số (Ví dụ: Reminder Pattern)
+├── database.py          # Module kết nối và thao tác SQLite
+├── nlp_engine.py        # Bộ điều phối trung tâm NLP
+├── requirements.txt     # Danh sách thư viện Python
+├── run.py               # Script khởi chạy (được gọi bởi build_exe)
+├── scheduler.db         # [IGNORE] File Database SQLite cục bộ
+└── test_cases_final.csv # File dữ liệu kiểm thử (30 câu lệnh)
