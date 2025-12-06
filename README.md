@@ -47,20 +47,20 @@ Nếu bạn chỉ muốn tải ứng dụng về dùng ngay (không cần cài P
 
 ## 📂 Cấu trúc dự án
 
-Dự án được tổ chức theo cấu trúc phân lớp (Layered Architecture) rõ ràng:
+Dự án được tổ chức theo cấu trúc phân lớp (Layered Architecture) rõ ràng, với các module NLP được nhóm lại trong thư mục chuyên biệt:
 
 ```text
 Personal-Schedule-Assistant-NLP/
 ├── assets/              # Tài nguyên (Âm thanh, icon)
 ├── nlp_core/            # Module Xử lý Ngôn ngữ Lõi
-│   ├── extractors.py    # Logic trích xuất thực thể
-│   ├── text_utils.py    # Tiền xử lý văn bản
-│   └── time_processor.py# Logic phân tích thời gian
+│   ├── constants.py     # Định nghĩa các Regex và Hằng số (Đã chuyển vào nlp_core)
+│   ├── extractors.py    # Logic trích xuất thực thể (Reminder, Location)
+│   ├── text_utils.py    # Tiền xử lý văn bản (Chuẩn hóa, xóa Stopwords)
+│   └── time_processor.py# Logic phân tích thời gian chuyên sâu
 ├── .gitignore           # Luật bỏ qua file (venv, dist, build)
 ├── README.md            # Mô tả dự án này
 ├── app.py               # Giao diện chính và Logic điều khiển Streamlit
 ├── build_exe.py         # Script đóng gói ứng dụng (.exe)
-├── constants.py         # Định nghĩa các Regex và Hằng số (Ví dụ: Reminder Pattern)
 ├── database.py          # Module kết nối và thao tác SQLite
 ├── nlp_engine.py        # Bộ điều phối trung tâm NLP
 ├── requirements.txt     # Danh sách thư viện Python
