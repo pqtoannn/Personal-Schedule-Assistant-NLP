@@ -69,7 +69,7 @@ Personal-Schedule-Assistant-NLP/
 └── test_cases_final.csv # File dữ liệu kiểm thử (30 câu lệnh)
 
 ```
-📖 Hướng dẫn Sử dụng (Chi tiết)
+## 📖 Hướng dẫn Sử dụng (Chi tiết)
 
 Sau khi khởi chạy ứng dụng thành công, người dùng có thể tương tác qua 4 tab chức năng chính:
 
